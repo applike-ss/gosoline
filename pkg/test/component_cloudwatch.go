@@ -23,7 +23,6 @@ func doRunCloudwatch(name string, config configInput) {
 			"4582/tcp": "4582",
 		},
 		HealthCheck: func() error {
-			//_, err := client.ListTables(&dynamodb.ListTablesInput{})
 			return err
 		},
 	})
