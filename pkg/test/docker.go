@@ -17,6 +17,20 @@ type ContainerConfig struct {
 	HealthCheck  func() error
 }
 
+func createTestNetwork(name string) error {
+	testNetwork, err := dockerPool.Client.CreateNetwork(docker.CreateNetworkOptions{
+		Name: name,
+	})
+
+	network = testNetwork
+
+	return err
+}
+
+func removeTestNetwork(network *docker.Network) error {
+	return dockerPool.Client.RemoveNetwork(network.ID)
+}
+
 func runContainer(name string, config ContainerConfig) {
 	err := dockerPool.RemoveContainerByName(name)
 
@@ -40,6 +54,7 @@ func runContainer(name string, config ContainerConfig) {
 		Env:          config.Env,
 		Cmd:          config.Cmd,
 		PortBindings: bindings,
+		NetworkID:    network.ID,
 	})
 
 	if err != nil {

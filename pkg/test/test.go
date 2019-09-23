@@ -3,6 +3,9 @@ package test
 import (
 	"fmt"
 	"github.com/ory/dockertest"
+	"github.com/ory/dockertest/docker"
+	"github.com/pkg/errors"
+	"github.com/twinj/uuid"
 	"log"
 	"sync"
 )
@@ -10,6 +13,7 @@ import (
 var err error
 var wait sync.WaitGroup
 var dockerPool *dockertest.Pool
+var network *docker.Network
 var dockerResources []*dockertest.Resource
 
 func init() {
@@ -27,8 +31,15 @@ func logErr(err error, msg string) {
 	log.Fatal(err)
 }
 
-func Boot() {
+func Boot() error {
 	config := readConfig()
+
+	testNetworkName := "test_network_" + uuid.NewV4().String()
+	err := createTestNetwork(testNetworkName)
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to create test network %s", testNetworkName)
+	}
 
 	for name, mockConfig := range config.Mocks {
 		bootComponent(name, mockConfig)
@@ -38,6 +49,8 @@ func Boot() {
 
 	log.Println("test environment up and running")
 	fmt.Println()
+
+	return nil
 }
 
 func bootComponent(name string, mockConfig configInput) {
@@ -48,8 +61,10 @@ func bootComponent(name string, mockConfig configInput) {
 		runDynamoDb(name, mockConfig)
 	case "cloudwatch":
 		runCloudwatchContainer(name, mockConfig)
-	case "localstack":
-		runLocalstackContainer(name, mockConfig)
+	case "sns":
+		runSnsContainer(name, mockConfig)
+	case "sqs":
+		runSqsContainer(name, mockConfig)
 	case "elasticsearch":
 		runElasticsearch(name, mockConfig)
 	case "mysql":
@@ -69,5 +84,11 @@ func Shutdown() {
 		if err := dockerPool.Purge(res); err != nil {
 			log.Fatalf("Could not purge resource: %s", err)
 		}
+	}
+
+	err := removeTestNetwork(network)
+
+	if err != nil {
+		log.Println("failed to remove test network! " + err.Error())
 	}
 }
