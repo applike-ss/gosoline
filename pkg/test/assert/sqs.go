@@ -18,7 +18,7 @@ func SqsQueueExists(t *testing.T, queueName string) {
 	assert.NoError(t, err)
 }
 
-func SqsQueueContainsMessages(t *testing.T, queueName string, count int) {
+func SqsQueueContainsMessages(t *testing.T, queueName string, count int) []*sqs.Message {
 	assert.NotNil(t, test.SqsClient)
 	queueUrlOutput, err := test.SqsClient.GetQueueUrl(&sqs.GetQueueUrlInput{
 		QueueName: &queueName,
@@ -34,4 +34,6 @@ func SqsQueueContainsMessages(t *testing.T, queueName string, count int) {
 
 	assert.NotNil(t, messages)
 	assert.Len(t, messages.Messages, count)
+
+	return messages.Messages
 }
