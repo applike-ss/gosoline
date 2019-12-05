@@ -2,12 +2,15 @@ module github.com/applike/gosoline
 
 replace github.com/xitongsys/parquet-go => github.com/applike/parquet-go v1.3.1-0.20190920135643-dfdda67390b8
 
+replace github.com/tiaguinho/gosoap => ../../../../github.com/applike-ss/gosoap
+
 require (
 	github.com/DATA-DOG/go-sqlmock v1.3.0
 	github.com/Masterminds/squirrel v1.1.0
 	github.com/VividCortex/mysqlerr v0.0.0-20170204212430-6c6b55f8796f
 	github.com/alicebob/gopher-json v0.0.0-20180125190556-5a6b3ba71ee6 // indirect
 	github.com/alicebob/miniredis v2.4.6+incompatible
+	github.com/applike-ss/gosoap v0.0.0-20191128145733-d7feee17301d
 	github.com/aws/aws-lambda-go v1.13.2
 	github.com/aws/aws-sdk-go v1.19.37
 	github.com/aws/aws-xray-sdk-go v0.9.4
@@ -21,6 +24,7 @@ require (
 	github.com/elliotchance/redismock v1.4.0
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5 // indirect
 	github.com/fatih/color v1.7.0
+	github.com/fiorix/wsdl2go v1.4.7
 	github.com/getsentry/raven-go v0.2.0
 	github.com/gin-contrib/cors v0.0.0-20190301062745-f9e10995c85a
 	github.com/gin-contrib/sse v0.0.0-20190125020943-a7658810eb74 // indirect
