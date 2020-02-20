@@ -18,6 +18,7 @@ func getSession(host string, port int) (*session.Session, error) {
 		HTTPClient: &http.Client{
 			Timeout: 1 * time.Minute,
 		},
+                MaxRetries: aws.Int(15),
 	}
 
 	return session.NewSession(config)
