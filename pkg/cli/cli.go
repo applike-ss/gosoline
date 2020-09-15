@@ -27,7 +27,7 @@ func newCliModule(module Module) *cliModule {
 }
 
 func Run(module Module) {
-	k := application.New([]application.Option{
+	k := application.New(
 		application.WithUTCClock(true),
 		application.WithConfigErrorHandlers(defaultErrorHandler),
 		application.WithConfigFile("./config.dist.yml", "yml"),
@@ -42,7 +42,7 @@ func Run(module Module) {
 		application.WithLoggerContextFieldsResolver(mon.ContextLoggerFieldsResolver),
 		application.WithLoggerSentryHook(mon.SentryExtraConfigProvider, mon.SentryExtraEcsMetadataProvider),
 		application.WithKernelSettingsFromConfig,
-	}...)
+	)
 	k.Add("cli", newCliModule(module))
 	k.Run()
 }
