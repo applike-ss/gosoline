@@ -8,11 +8,13 @@ import (
 	"github.com/applike/gosoline/pkg/fixtures"
 	"github.com/applike/gosoline/pkg/kernel"
 	"github.com/applike/gosoline/pkg/mon"
+	"github.com/applike/gosoline/pkg/net"
 	"github.com/applike/gosoline/pkg/stream"
 	"github.com/applike/gosoline/pkg/tracing"
 	"github.com/pkg/errors"
 	"io"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -248,7 +250,7 @@ func WithLoggerSettingsFromConfig(app *App) {
 		settings := &loggerSettings{}
 		config.UnmarshalKey("mon.logger", settings)
 
-		outputFile, err := os.OpenFile(settings.Output.File, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		outputFile, err := getLoggerOutputFile(settings, logger)
 		if err != nil {
 			return err
 		}
@@ -262,6 +264,31 @@ func WithLoggerSettingsFromConfig(app *App) {
 
 		return logger.Option(loggerOptions...)
 	})
+}
+
+func getLoggerOutputFile(settings *loggerSettings, logger mon.GosoLog) (io.Writer, error) {
+	filename := settings.Output.File
+
+	regex, err := regexp.Compile("\\w+?://")
+	if err != nil {
+		return nil, err
+	}
+
+	isProtocolPrefixed := regex.Match([]byte(filename))
+	isFileProtocol := strings.Index(filename, "file://") > -1
+	isRemote := isProtocolPrefixed && !isFileProtocol
+	var outputFile io.Writer
+
+	if isRemote {
+		outputFile, err = net.LookupHostDialer(logger, filename)()
+	} else {
+		outputFile, err = os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return outputFile, nil
 }
 
 func WithLoggerTagsFromConfig(app *App) {
