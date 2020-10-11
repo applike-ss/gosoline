@@ -1,6 +1,7 @@
 package application
 
 import (
+	"context"
 	"flag"
 	"github.com/applike/gosoline/pkg/apiserver"
 	"github.com/applike/gosoline/pkg/cfg"
@@ -13,6 +14,7 @@ import (
 	"github.com/applike/gosoline/pkg/tracing"
 	"github.com/pkg/errors"
 	"io"
+	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -280,7 +282,19 @@ func getLoggerOutputFile(settings *loggerSettings, logger mon.GosoLog) (io.Write
 	var outputFile io.Writer
 
 	if isRemote {
-		outputFile, err = net.LookupHostDialer(logger, filename)()
+		l := logger.WithContext(context.Background()).(mon.GosoLog)
+
+		tmpFile, err := ioutil.TempFile("", "")
+		if err != nil {
+			return nil, err
+		}
+
+		err = l.Option(mon.WithOutput(tmpFile))
+		if err != nil {
+			return nil, err
+		}
+
+		outputFile, err = net.LookupHostDialer(l, filename)()
 	} else {
 		outputFile, err = os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	}
