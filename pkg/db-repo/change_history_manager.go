@@ -123,14 +123,14 @@ func (c *changeHistoryManager) createHistoryTriggers() {
 	c.appendStatement(fmt.Sprintf(`CREATE TRIGGER %s_ai AFTER INSERT ON %s FOR EACH ROW %s WHERE %s`,
 		c.originalTable.tableName,
 		c.originalTable.tableNameQuoted,
-		c.insertHistoryEntry("insert", true),
+		c.insertHistoryEntry("insert"),
 		c.primaryKeysMatchCondition(NewRecord),
 	))
 
 	c.appendStatement(fmt.Sprintf(`CREATE TRIGGER %s_au AFTER UPDATE ON %s FOR EACH ROW %s WHERE %s AND (%s)`,
 		c.originalTable.tableName,
 		c.originalTable.tableNameQuoted,
-		c.insertHistoryEntry("update", true),
+		c.insertHistoryEntry("update"),
 		c.primaryKeysMatchCondition(NewRecord),
 		c.rowUpdatedCondition(),
 	))
@@ -138,7 +138,7 @@ func (c *changeHistoryManager) createHistoryTriggers() {
 	c.appendStatement(fmt.Sprintf(`CREATE TRIGGER %s_bd BEFORE DELETE ON %s FOR EACH ROW %s WHERE %s`,
 		c.originalTable.tableName,
 		c.originalTable.tableNameQuoted,
-		c.insertHistoryEntry("delete", false),
+		c.insertHistoryEntry("delete"),
 		c.primaryKeysMatchCondition(OldRecord),
 	))
 
@@ -149,11 +149,8 @@ func (c *changeHistoryManager) createHistoryTriggers() {
 	))
 }
 
-func (c *changeHistoryManager) insertHistoryEntry(action string, includeAuthorEmail bool) string {
+func (c *changeHistoryManager) insertHistoryEntry(action string) string {
 	columnNames := c.originalTable.columnNamesQuoted()
-	if !includeAuthorEmail {
-		columnNames = c.originalTable.columnNamesQuotedExcludingValue(c.settings.ChangeAuthorField)
-	}
 
 	columns := strings.Join(columnNames, ",")
 	values := "d." + strings.Join(columnNames, ", d.")
