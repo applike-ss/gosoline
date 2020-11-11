@@ -4,6 +4,8 @@ import (
 	"github.com/applike/gosoline/pkg/cfg"
 	"github.com/applike/gosoline/pkg/cloud"
 	"github.com/applike/gosoline/pkg/mon"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ses/sesiface"
@@ -39,6 +41,8 @@ func NewClient(config cfg.Config, logger mon.Logger, settings *Settings) *ses.SE
 	}
 
 	awsConfig := cloud.GetAwsConfig(config, logger, "ses", &settings.Client)
+	awsConfig.Region = aws.String(endpoints.EuWest1RegionID)
+
 	sess := session.Must(session.NewSession(awsConfig))
 
 	return ses.New(sess)
