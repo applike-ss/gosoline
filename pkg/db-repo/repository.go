@@ -59,7 +59,11 @@ func New(config cfg.Config, logger mon.Logger, s Settings) (*repository, error) 
 		return nil, fmt.Errorf("can not create tracer: %w", err)
 	}
 
-	orm, err := NewOrm(config, logger)
+	if s.Metadata.ConnectionName == "" {
+		s.Metadata.ConnectionName = "default"
+	}
+
+	orm, err := NewOrm(config, logger, s.Metadata.ConnectionName)
 	if err != nil {
 		return nil, fmt.Errorf("can not create orm: %w", err)
 	}

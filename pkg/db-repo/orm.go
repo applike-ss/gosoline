@@ -19,14 +19,14 @@ type OrmSettings struct {
 	Application string              `cfg:"application" default:"{app_name}"`
 }
 
-func NewOrm(config cfg.Config, logger mon.Logger) (*gorm.DB, error) {
-	dbClient, err := db.NewClient(config, logger, "default")
+func NewOrm(config cfg.Config, logger mon.Logger, name string) (*gorm.DB, error) {
+	dbClient, err := db.NewClient(config, logger, name)
 	if err != nil {
 		return nil, fmt.Errorf("can not create dbClient: %w", err)
 	}
 
 	settings := OrmSettings{}
-	config.UnmarshalKey("db.default", &settings)
+	config.UnmarshalKey(fmt.Sprintf("db.%s", name), &settings)
 
 	application := settings.Application
 

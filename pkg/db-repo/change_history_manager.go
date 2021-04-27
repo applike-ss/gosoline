@@ -25,7 +25,7 @@ type changeHistoryManager struct {
 }
 
 func newChangeHistoryManager(config cfg.Config, logger mon.Logger, model ModelBased) (*changeHistoryManager, error) {
-	orm, err := NewOrm(config, logger)
+	orm, err := NewOrm(config, logger, "default")
 	if err != nil {
 		return nil, fmt.Errorf("can not create orm: %w", err)
 	}

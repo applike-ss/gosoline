@@ -36,7 +36,7 @@ type OutputDb struct {
 }
 
 func NewOutputDb(config cfg.Config, logger mon.Logger) (*OutputDb, error) {
-	orm, err := db_repo.NewOrm(config, logger)
+	orm, err := db_repo.NewOrm(config, logger, "default")
 	if err != nil {
 		return nil, fmt.Errorf("can not create orm: %w", err)
 	}
