@@ -3,11 +3,12 @@ package apiserver
 import (
 	"errors"
 	"fmt"
-	"github.com/applike/gosoline/pkg/log"
-	"github.com/gin-gonic/gin"
 	"io"
 	"strings"
 	"time"
+
+	"github.com/applike/gosoline/pkg/log"
+	"github.com/gin-gonic/gin"
 )
 
 func LoggingMiddleware(logger log.Logger) gin.HandlerFunc {
@@ -15,6 +16,16 @@ func LoggingMiddleware(logger log.Logger) gin.HandlerFunc {
 
 	return func(ginCtx *gin.Context) {
 		start := time.Now()
+		defer func() {
+			err := recover()
+			if err != nil {
+				chLogger.
+					WithContext(ginCtx.Request.Context()).
+					Error("failed to process request: %w", err)
+
+				panic(err)
+			}
+		}()
 
 		ginCtx.Next()
 
@@ -75,6 +86,7 @@ func LoggingMiddleware(logger log.Logger) gin.HandlerFunc {
 		}
 	}
 }
+
 func getPathRaw(ginCtx *gin.Context) string {
 	path := ginCtx.Request.URL.Path
 
